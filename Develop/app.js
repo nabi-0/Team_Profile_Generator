@@ -50,16 +50,16 @@ inquirer
         name: "github"
       }
     ]);
-      return newEngineer();
+      //return newEngineer();
     }
     if (answers.role === "Intern") {
       inquirer.prompt([ {
         type: "input",
-        message: "Enter School:",
+        message: "Enter School name:",
         name: "school"
       }
     ]);
-      return newIntern();
+      //return newIntern();
     }
     if (answers.role === "Manager") {
       inquirer.prompt([ {
@@ -68,10 +68,29 @@ inquirer
         name: "office"
       }
     ]);
-      return newManager();
+      //return newManager();
     }
-  });
+  })
 
+  // employees = [];
+  // function init() {
+  //   inquirer.prompt([ {
+  //     type: "confirm",
+  //     message: "End of Employee Info?",
+  //     name: "endEmployee"
+  //   }
+  // ])
+  //   .then(answers => {
+  //     const htmlRenderer = render(employees)
+  //     fs.writeFile("./output/team.html", htmlRender, "utf8", (error) => {
+  //       if (error) throw error;
+  //       console.log("Team has been successfully created.")
+  //     });
+  //   })
+  //   .catch(error => {
+  //     console.log(error);
+  //   });
+  // }
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
