@@ -13,84 +13,141 @@ const OUTPUT_DIR = path.resolve(__dirname, "output");
 const outputPath = path.join(OUTPUT_DIR, "team.html");
 
 const render = require("./lib/htmlRenderer");
+const { AsyncResource } = require("async_hooks");
+const { promisify } = require("util");
 
 
 // Write code to use inquirer to gather information about the development team members,
 // and to create objects for each team member (using the correct classes as blueprints!)
 
-inquirer
-  .prompt([ {
-    type: "list",
-    message: "Select your Role:",
-    choices: [
-        "Engineer",
-        "Intern",
-        "Manager" ],
-    name: "role"
-  },{
-    /* Pass your questions in here */
-     type: "input",
-     message: "Enter your name:",
-     name: "username"
-  }, {
-      type: "input",
-      message: "Enter your ID number:",
-      name: "idNumber"
-  }, {
-      type: "input",
-      message: "Enter your email:",
-      name: "email"
-  }
-])
-  .then(answers => {
-    if (answers.role === "Engineer") {
-      inquirer.prompt([ {
-        type: "input",
-        message: "Enter GitHub username:",
-        name: "github"
+
+let employees = [];
+
+init();
+
+
+function init()
+{
+  // Explain the purpose of the program here.. 
+
+  AddEmployees();
+}
+
+function AddEmployees() {
+  inquirer.prompt(
+    [
+        {
+          type: "confirm",
+          message: "Add new employee?",
+          name: "confirmAddNewEmployee"
+        }
+    ])
+    .then(function(answers) {
+      if (answers.confirmAddNewEmployee === true) {
+        promptUserAndAddEmployee();
+      } else {
+        const htmlRender = render(employees)
+        fs.writeFile("./output/team.html", htmlRender, "utf8", (error) => {
+          if (error) 
+          {
+            console.log(error);
+          }
+          console.log("Team has been successfully created and is located in the output folder of this application.")
+        });
       }
-    ]);
-      //return newEngineer();
+    });  
+}
+
+  function promptUserAndAddEmployee() {
+   inquirer.prompt(
+      [
+         {
+            type: "list",
+            message: "Select your Role:",
+            choices:
+             [
+                "Engineer",
+                "Intern",
+                "Manager" 
+              ],
+            name: "role"
+          },
+          {
+            type: "input",
+            message: "Enter your name:",
+            name: "username"
+          },
+          {
+            type: "input",
+            message: "Enter your ID number:",
+            name: "employeeID"
+          }, 
+          {
+            type: "input",
+            message: "Enter your email:",
+            name: "email"
+          }
+      ]
+    )
+  .then(function(answers) {
+    if (answers.role === "Engineer") {
+      inquirer.prompt(
+        [ 
+          {
+            type: "input",
+            message: "Enter GitHub username:",
+            name: "github"
+          }
+        ])
+          .then(function (answer) 
+            {
+              addEmployeeToArrayAndContinue(new Engineer(answers.username, answers.employeeID, answers.email, answer.github));
+            });
     }
+
     if (answers.role === "Intern") {
       inquirer.prompt([ {
         type: "input",
         message: "Enter School name:",
-        name: "school"
-      }
-    ]);
-      //return newIntern();
+        name: "schoolName"
+      }])
+      .then(function (answer) 
+      {
+        addEmployeeToArrayAndContinue(new Intern(answers.username, answers.employeeID, answers.email, answer.schoolName));
+      });
     }
+
     if (answers.role === "Manager") {
       inquirer.prompt([ {
         type: "input",
         message: "Enter Office Number:",
-        name: "office"
-      }
-    ]);
-      //return newManager();
+        name: "officeNumber"
+      }])
+      .then(function (answer) 
+      {
+        addEmployeeToArrayAndContinue(new Manager(answers.username, answers.employeeID, answers.email, answer.officeNumber));
+      });
     }
-  })
+  });
+}
 
-  // employees = [];
-  // function init() {
-  //   inquirer.prompt([ {
-  //     type: "confirm",
-  //     message: "End of Employee Info?",
-  //     name: "endEmployee"
-  //   }
-  // ])
-  //   .then(answers => {
-  //     const htmlRenderer = render(employees)
-  //     fs.writeFile("./output/team.html", htmlRender, "utf8", (error) => {
-  //       if (error) throw error;
-  //       console.log("Team has been successfully created.")
-  //     });
-  //   })
-  //   .catch(error => {
-  //     console.log(error);
-  //   });
-  // }
+function addEmployeeToArrayAndContinue(newEmployee) {
+  if (newEmployee !== null)
+  {
+    employees.push(newEmployee);
+  }
+  AddEmployees();
+}
+
+
+  // inqPromise = questions();
+  // inqPromise.then(data => {
+  //   let name = data.name;
+  //   let email = data.email;
+  //   let id = data.number;
+  // }).catch(error => {
+  //   console.log("error");
+  // })
 
 // After the user has input all employees desired, call the `render` function (required
 // above) and pass in an array containing all employee objects; the `render` function will
